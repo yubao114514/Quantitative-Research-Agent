@@ -1,0 +1,17 @@
+from mcp_server.tools import get_market_data
+
+
+def select_and_load_data(tickers: list[str], start: str, end: str) -> tuple[str, object]:
+    prices, source = get_market_data(tickers=tickers, start=start, end=end)
+    notes = f"""
+The Data Agent selected a liquid US large-cap universe plus SPY as the benchmark.
+
+- Source used: **{source}**
+- Tickers: `{", ".join(tickers)}`
+- Date range: `{start}` to `{end}`
+- Frequency: daily adjusted close prices
+- Benchmark: `SPY`
+
+If live data cannot be downloaded, the app uses deterministic sample data so the demo remains reproducible.
+"""
+    return notes.strip(), prices
