@@ -3,6 +3,11 @@ import pandas as pd
 from quant.metrics import calculate_metrics
 
 
+def normalize_rebalance_frequency(rebalance: str) -> str:
+    """Keep older demo configs compatible with pandas 3.x frequency names."""
+    return "ME" if rebalance == "M" else rebalance
+
+
 def run_momentum_strategy(
     prices: pd.DataFrame,
     lookback_days: int,
@@ -14,6 +19,7 @@ def run_momentum_strategy(
     prices = prices.sort_index().ffill().dropna(how="all")
     tradable = [column for column in prices.columns if column != benchmark]
     momentum = prices.pct_change(lookback_days)
+    rebalance = normalize_rebalance_frequency(rebalance)
     rebalance_dates = prices.groupby(pd.Grouper(freq=rebalance)).tail(1).index
     weights = pd.DataFrame(0.0, index=prices.index, columns=prices.columns)
 

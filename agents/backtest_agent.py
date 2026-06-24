@@ -2,7 +2,7 @@ from mcp_server.tools import run_momentum_backtest
 
 
 GENERATED_CODE = """
-def run_momentum_strategy(prices, lookback_days=252, rebalance="M", top_n=3):
+def run_momentum_strategy(prices, lookback_days=252, rebalance="ME", top_n=3):
     momentum = prices.pct_change(lookback_days)
     rebalance_dates = prices.groupby(pd.Grouper(freq=rebalance)).tail(1).index
     weights = pd.DataFrame(0.0, index=prices.index, columns=prices.columns)
@@ -29,7 +29,7 @@ def run_backtest(prices):
         {
             "prices": prices,
             "lookback_days": 252,
-            "rebalance": "M",
+            "rebalance": "ME",
             "top_n": 3,
             "benchmark": "SPY",
         }
