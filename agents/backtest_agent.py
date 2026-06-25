@@ -1,5 +1,4 @@
 from mcp_server.tools import run_mean_reversion_backtest, run_momentum_backtest
-from quant.config import load_app_config
 
 
 MOMENTUM_CODE = """
@@ -47,8 +46,7 @@ def run_mean_reversion_strategy(prices, benchmark, lookback_days, rebalance, top
 """.strip()
 
 
-def run_backtest(prices, strategy_type: str, benchmark: str):
-    strategy_config = load_app_config()["strategies"][strategy_type]
+def run_backtest(prices, strategy_type: str, benchmark: str, strategy_config: dict):
     if strategy_type == "mean_reversion":
         result = run_mean_reversion_backtest(
             {

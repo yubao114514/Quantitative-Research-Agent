@@ -4,6 +4,8 @@ def build_research_report(payload: dict) -> str:
     strategy_label = payload.get("strategy_label", "Momentum")
     strategy_type = payload.get("strategy_type", "momentum")
     benchmark = payload.get("benchmark", "benchmark")
+    strategy_config = payload.get("strategy_config", {})
+    config_reason = payload.get("config_reason", "")
     if strategy_type == "mean_reversion":
         thesis = "Mean reversion strategies test whether short-term losers rebound after temporary overreaction. This MVP evaluates a monthly rebalanced 20-day reversal implementation."
         methodology = """- Rank non-benchmark stocks by 20-day trailing return.
@@ -32,6 +34,14 @@ def build_research_report(payload: dict) -> str:
 
 ## Strategy Type
 {strategy_label}
+
+## Agent-Recommended Configuration
+- Benchmark: `{benchmark}`
+- Lookback days: `{strategy_config.get("lookback_days", "n/a")}`
+- Rebalance: `{strategy_config.get("rebalance", "n/a")}`
+- Top N: `{strategy_config.get("top_n", "n/a")}`
+
+{config_reason}
 
 ## Literature Review
 {paper_lines}

@@ -4,6 +4,38 @@
   "default_benchmark": "SPY",
   "default_start": "2018-01-01",
   "default_end": "2025-12-31",
+  "universe_templates": {
+    "us_equities": {
+      "universe": ["AAPL", "MSFT", "NVDA", "AMZN", "META", "GOOGL", "JPM", "XOM", "UNH", "SPY"],
+      "benchmark": "SPY",
+      "reason": "Large-cap US equities are liquid and suitable for a first-pass broad market strategy test."
+    },
+    "technology": {
+      "universe": ["AAPL", "MSFT", "NVDA", "AMD", "AVGO", "META", "GOOGL", "QQQ"],
+      "benchmark": "QQQ",
+      "reason": "A technology-heavy universe is suitable when the research idea focuses on growth or tech stocks."
+    },
+    "semiconductor": {
+      "universe": ["NVDA", "AMD", "AVGO", "INTC", "MU", "QCOM", "TSM", "SOXX"],
+      "benchmark": "SOXX",
+      "reason": "A semiconductor universe helps isolate chip-sector behavior from the broader equity market."
+    },
+    "energy": {
+      "universe": ["XOM", "CVX", "COP", "SLB", "EOG", "MPC", "XLE"],
+      "benchmark": "XLE",
+      "reason": "An energy-sector universe is appropriate for oil, gas, and commodity-sensitive equity strategies."
+    },
+    "financials": {
+      "universe": ["JPM", "BAC", "GS", "MS", "WFC", "C", "XLF"],
+      "benchmark": "XLF",
+      "reason": "A financials universe focuses the test on banks and capital markets firms."
+    },
+    "crypto": {
+      "universe": ["BTC-USD", "ETH-USD", "SOL-USD", "BNB-USD", "XRP-USD"],
+      "benchmark": "BTC-USD",
+      "reason": "A crypto universe uses liquid crypto tickers available through common market data APIs."
+    }
+  },
   "strategies": {
     "momentum": {
       "label": "Momentum",

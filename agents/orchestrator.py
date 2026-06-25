@@ -12,14 +12,25 @@ def run_research_pipeline(
     start: str,
     end: str,
     benchmark: str,
+    strategy_config: dict | None = None,
+    config_reason: str = "",
     use_online_papers: bool = True,
 ) -> dict:
     strategy_type = detect_strategy_type(query)
     label = strategy_label(strategy_type)
+    if strategy_config is None:
+        from quant.config import load_app_config
+
+        strategy_config = load_app_config()["strategies"][strategy_type]
     research_plan = create_research_plan(query, strategy_label=label, benchmark=benchmark)
     papers = summarize_literature(query, strategy_type=strategy_type, use_online=use_online_papers)
     data_notes, prices = select_and_load_data(tickers, start, end, benchmark)
-    backtest = run_backtest(prices, strategy_type=strategy_type, benchmark=benchmark)
+    backtest = run_backtest(
+        prices,
+        strategy_type=strategy_type,
+        benchmark=benchmark,
+        strategy_config=strategy_config,
+    )
 
     report = write_report(
         {
@@ -27,6 +38,8 @@ def run_research_pipeline(
             "strategy_type": strategy_type,
             "strategy_label": label,
             "benchmark": benchmark,
+            "strategy_config": strategy_config,
+            "config_reason": config_reason,
             "research_plan": research_plan,
             "papers": papers,
             "data_notes": data_notes,
@@ -47,6 +60,8 @@ def run_research_pipeline(
         "strategy_type": strategy_type,
         "strategy_label": label,
         "benchmark": benchmark,
+        "strategy_config": strategy_config,
+        "config_reason": config_reason,
         "research_plan": research_plan,
         "papers": papers,
         "paper_source": papers[0].get("source", "Local library") if papers else "No papers found",

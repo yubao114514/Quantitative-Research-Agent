@@ -26,6 +26,8 @@ The project demonstrates three required Evaluation concepts:
 - Deterministic fallback outputs when no API key is available
 - yfinance market data with sample-data fallback
 - Online arXiv paper search with local paper-library fallback
+- Agent-recommended universe, benchmark, and backtest settings
+- User-editable universe builder before running data and backtest
 - Monthly 12-month momentum backtest
 - Monthly 20-day mean reversion backtest
 - Config-driven defaults in `config/app_config.json`

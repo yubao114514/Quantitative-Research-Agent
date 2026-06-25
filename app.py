@@ -5,6 +5,7 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from agents.orchestrator import run_research_pipeline
+from agents.strategy_config_agent import recommend_research_config
 from quant.config import load_app_config
 
 
@@ -20,13 +21,57 @@ st.set_page_config(
 st.title("Quantitative Research Assistant")
 st.caption("From strategy idea to literature review, backtest, and research report.")
 
+if "research_config" not in st.session_state:
+    st.session_state.research_config = recommend_research_config(APP_CONFIG["default_query"])
+if "universe_text" not in st.session_state:
+    st.session_state.universe_text = ", ".join(st.session_state.research_config["universe"])
+if "benchmark" not in st.session_state:
+    st.session_state.benchmark = st.session_state.research_config["benchmark"]
+if "added_ticker" not in st.session_state:
+    st.session_state.added_ticker = ""
+
+query = st.text_input("Strategy idea", value=APP_CONFIG["default_query"])
+
+if st.button("Suggest research config"):
+    st.session_state.research_config = recommend_research_config(query)
+    st.session_state.universe_text = ", ".join(st.session_state.research_config["universe"])
+    st.session_state.benchmark = st.session_state.research_config["benchmark"]
+
+config = st.session_state.research_config
+st.info(
+    f"Suggested: {config['strategy_label']} | Benchmark: {config['benchmark']} | "
+    f"Lookback: {config['lookback_days']} days | Rebalance: {config['rebalance']} | Top N: {config['top_n']}"
+)
+st.caption(config["reason"])
+
 with st.sidebar:
-    st.header("Demo Settings")
-    benchmark = st.text_input("Benchmark", value=APP_CONFIG["default_benchmark"]).strip().upper()
+    st.header("Universe Builder")
+    benchmark = st.text_input("Benchmark", key="benchmark").strip().upper()
     tickers = st.text_area(
-        "Universe",
-        ", ".join(APP_CONFIG["default_universe"]),
+        "Final universe",
+        key="universe_text",
         height=92,
+    )
+    added_ticker = st.text_input("Add ticker", key="added_ticker").strip().upper()
+    if st.button("Add ticker") and added_ticker:
+        current = [ticker.strip().upper() for ticker in st.session_state.universe_text.split(",") if ticker.strip()]
+        if added_ticker not in current:
+            current.append(added_ticker)
+        st.session_state.universe_text = ", ".join(current)
+        st.session_state.added_ticker = ""
+        st.rerun()
+    if st.button("Reset to agent suggestion"):
+        st.session_state.universe_text = ", ".join(config["universe"])
+        st.session_state.benchmark = config["benchmark"]
+        st.rerun()
+    st.divider()
+    st.header("Backtest Settings")
+    lookback_days = st.number_input("Lookback days", min_value=1, value=int(config["lookback_days"]))
+    top_n = st.number_input("Top N", min_value=1, value=int(config["top_n"]))
+    rebalance = st.selectbox(
+        "Rebalance",
+        options=["ME", "W-FRI"],
+        index=0 if config["rebalance"] == "ME" else 1,
     )
     start = st.date_input("Start date", value=date.fromisoformat(APP_CONFIG["default_start"]))
     end = st.date_input("End date", value=date.fromisoformat(APP_CONFIG["default_end"]))
@@ -43,13 +88,17 @@ if not has_llm_key:
         "No LLM API key found. Set GEMINI_API_KEY or OPENAI_API_KEY for live agent writing; otherwise the app uses deterministic fallback outputs."
     )
 
-query = st.text_input("Strategy idea", value=APP_CONFIG["default_query"])
 run_button = st.button("Run research pipeline", type="primary")
 
 if run_button:
     ticker_list = [ticker.strip().upper() for ticker in tickers.split(",") if ticker.strip()]
     if benchmark and benchmark not in ticker_list:
         ticker_list.append(benchmark)
+    selected_strategy_config = {
+        "lookback_days": int(lookback_days),
+        "rebalance": rebalance,
+        "top_n": int(top_n),
+    }
     with st.status("Running multi-agent research pipeline...", expanded=True) as status:
         st.write("Research Planner is creating the study plan.")
         result = run_research_pipeline(
@@ -58,6 +107,8 @@ if run_button:
             start=str(start),
             end=str(end),
             benchmark=benchmark,
+            strategy_config=selected_strategy_config,
+            config_reason=config["reason"],
             use_online_papers=use_online_papers,
         )
         st.write("Literature Agent summarized relevant papers.")
@@ -93,6 +144,10 @@ if run_button:
                     st.markdown(f"[Open paper]({paper['url']})")
 
     with tabs[2]:
+        st.subheader("Agent Recommendation")
+        st.markdown(f"**Universe:** `{', '.join(config['universe'])}`")
+        st.markdown(f"**Reason:** {config['reason']}")
+        st.divider()
         st.subheader("Data Source Notes")
         st.markdown(result["data_notes"])
         st.dataframe(result["prices"].tail(10), use_container_width=True)
