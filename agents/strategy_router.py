@@ -7,8 +7,7 @@ def detect_strategy_type(query: str) -> str:
 
 
 def strategy_label(strategy_type: str) -> str:
-    labels = {
-        "momentum": "Momentum",
-        "mean_reversion": "Mean Reversion",
-    }
-    return labels.get(strategy_type, "Momentum")
+    from quant.config import load_app_config
+
+    strategies = load_app_config()["strategies"]
+    return strategies.get(strategy_type, strategies["momentum"])["label"]

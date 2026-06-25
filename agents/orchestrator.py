@@ -6,18 +6,27 @@ from agents.research_planner import create_research_plan
 from agents.strategy_router import detect_strategy_type, strategy_label
 
 
-def run_research_pipeline(query: str, tickers: list[str], start: str, end: str) -> dict:
+def run_research_pipeline(
+    query: str,
+    tickers: list[str],
+    start: str,
+    end: str,
+    benchmark: str,
+    use_online_papers: bool = True,
+) -> dict:
     strategy_type = detect_strategy_type(query)
-    research_plan = create_research_plan(query)
-    papers = summarize_literature(query)
-    data_notes, prices = select_and_load_data(tickers, start, end)
-    backtest = run_backtest(prices, strategy_type=strategy_type)
+    label = strategy_label(strategy_type)
+    research_plan = create_research_plan(query, strategy_label=label, benchmark=benchmark)
+    papers = summarize_literature(query, strategy_type=strategy_type, use_online=use_online_papers)
+    data_notes, prices = select_and_load_data(tickers, start, end, benchmark)
+    backtest = run_backtest(prices, strategy_type=strategy_type, benchmark=benchmark)
 
     report = write_report(
         {
             "query": query,
             "strategy_type": strategy_type,
-            "strategy_label": strategy_label(strategy_type),
+            "strategy_label": label,
+            "benchmark": benchmark,
             "research_plan": research_plan,
             "papers": papers,
             "data_notes": data_notes,
@@ -36,9 +45,11 @@ def run_research_pipeline(query: str, tickers: list[str], start: str, end: str) 
 
     return {
         "strategy_type": strategy_type,
-        "strategy_label": strategy_label(strategy_type),
+        "strategy_label": label,
+        "benchmark": benchmark,
         "research_plan": research_plan,
         "papers": papers,
+        "paper_source": papers[0].get("source", "Local library") if papers else "No papers found",
         "data_notes": data_notes,
         "prices": prices,
         "metrics": backtest["metrics"],

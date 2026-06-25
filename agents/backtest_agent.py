@@ -1,12 +1,13 @@
 from mcp_server.tools import run_mean_reversion_backtest, run_momentum_backtest
+from quant.config import load_app_config
 
 
 MOMENTUM_CODE = """
-def run_momentum_strategy(prices, lookback_days=252, rebalance="ME", top_n=3):
+def run_momentum_strategy(prices, benchmark, lookback_days, rebalance, top_n):
     momentum = prices.pct_change(lookback_days)
     rebalance_dates = prices.groupby(pd.Grouper(freq=rebalance)).tail(1).index
     weights = pd.DataFrame(0.0, index=prices.index, columns=prices.columns)
-    tradable = [c for c in prices.columns if c != "SPY"]
+    tradable = [c for c in prices.columns if c != benchmark]
     current_weights = pd.Series(0.0, index=prices.columns)
 
     for date in prices.index:
@@ -19,16 +20,16 @@ def run_momentum_strategy(prices, lookback_days=252, rebalance="ME", top_n=3):
 
     returns = prices.pct_change().fillna(0)
     strategy_returns = (weights.shift(1).fillna(0) * returns).sum(axis=1)
-    benchmark_returns = returns["SPY"]
+    benchmark_returns = returns[benchmark]
     return strategy_returns, benchmark_returns
 """.strip()
 
 MEAN_REVERSION_CODE = """
-def run_mean_reversion_strategy(prices, lookback_days=20, rebalance="ME", top_n=3):
+def run_mean_reversion_strategy(prices, benchmark, lookback_days, rebalance, top_n):
     short_term_return = prices.pct_change(lookback_days)
     rebalance_dates = prices.groupby(pd.Grouper(freq=rebalance)).tail(1).index
     weights = pd.DataFrame(0.0, index=prices.index, columns=prices.columns)
-    tradable = [c for c in prices.columns if c != "SPY"]
+    tradable = [c for c in prices.columns if c != benchmark]
     current_weights = pd.Series(0.0, index=prices.columns)
 
     for date in prices.index:
@@ -41,20 +42,21 @@ def run_mean_reversion_strategy(prices, lookback_days=20, rebalance="ME", top_n=
 
     returns = prices.pct_change().fillna(0)
     strategy_returns = (weights.shift(1).fillna(0) * returns).sum(axis=1)
-    benchmark_returns = returns["SPY"]
+    benchmark_returns = returns[benchmark]
     return strategy_returns, benchmark_returns
 """.strip()
 
 
-def run_backtest(prices, strategy_type: str):
+def run_backtest(prices, strategy_type: str, benchmark: str):
+    strategy_config = load_app_config()["strategies"][strategy_type]
     if strategy_type == "mean_reversion":
         result = run_mean_reversion_backtest(
             {
                 "prices": prices,
-                "lookback_days": 20,
-                "rebalance": "ME",
-                "top_n": 3,
-                "benchmark": "SPY",
+                "lookback_days": strategy_config["lookback_days"],
+                "rebalance": strategy_config["rebalance"],
+                "top_n": strategy_config["top_n"],
+                "benchmark": benchmark,
             }
         )
         result["generated_code"] = MEAN_REVERSION_CODE
@@ -63,10 +65,10 @@ def run_backtest(prices, strategy_type: str):
     result = run_momentum_backtest(
         {
             "prices": prices,
-            "lookback_days": 252,
-            "rebalance": "ME",
-            "top_n": 3,
-            "benchmark": "SPY",
+            "lookback_days": strategy_config["lookback_days"],
+            "rebalance": strategy_config["rebalance"],
+            "top_n": strategy_config["top_n"],
+            "benchmark": benchmark,
         }
     )
     result["generated_code"] = MOMENTUM_CODE

@@ -3,12 +3,12 @@ from typing import Any
 
 from quant.backtest import run_mean_reversion_strategy, run_momentum_strategy
 from quant.data import load_market_data
-from quant.papers import search_momentum_papers
+from quant.papers import search_strategy_papers
 from quant.report import build_research_report
 
 
-def search_papers(query: str) -> list[dict]:
-    return search_momentum_papers(query)
+def search_papers(query: str, strategy_type: str = "momentum", use_online: bool = True) -> list[dict]:
+    return search_strategy_papers(query, strategy_type, use_online=use_online)
 
 
 def get_market_data(tickers: list[str], start: str, end: str):

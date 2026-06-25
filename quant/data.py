@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from pandas.util import hash_pandas_object
 
 
 def load_market_data(tickers: list[str], start: str, end: str):
@@ -19,7 +20,7 @@ def load_market_data(tickers: list[str], start: str, end: str):
         else:
             prices = data.dropna(how="all")
         prices = prices.ffill().dropna(how="all")
-        if not prices.empty and {"SPY"}.issubset(set(prices.columns)):
+        if not prices.empty:
             return prices, "yfinance live adjusted close"
     except Exception:
         pass
@@ -31,21 +32,10 @@ def generate_sample_prices(tickers: list[str], start: str, end: str) -> pd.DataF
     index = pd.bdate_range(start=start, end=end)
     rng = np.random.default_rng(42)
     prices = {}
-    drift_map = {
-        "NVDA": 0.0007,
-        "MSFT": 0.00045,
-        "AAPL": 0.00042,
-        "META": 0.0005,
-        "AMZN": 0.0004,
-        "GOOGL": 0.00035,
-        "JPM": 0.00025,
-        "XOM": 0.00022,
-        "UNH": 0.0003,
-        "SPY": 0.00028,
-    }
     for i, ticker in enumerate(tickers):
-        drift = drift_map.get(ticker, 0.00025)
-        vol = 0.018 if ticker != "SPY" else 0.011
+        ticker_seed = int(hash_pandas_object(pd.Index([ticker]))[0] % 1000)
+        drift = 0.00018 + ticker_seed / 1_000_000
+        vol = 0.010 + (ticker_seed % 12) / 1000
         cycle = np.sin(np.linspace(0, 12, len(index)) + i) * 0.0015
         shocks = rng.normal(drift, vol, len(index)) + cycle
         prices[ticker] = 100 * np.exp(np.cumsum(shocks))

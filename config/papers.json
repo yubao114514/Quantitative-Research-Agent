@@ -1,0 +1,32 @@
+[
+  {
+    "strategy": "momentum",
+    "title": "Returns to Buying Winners and Selling Losers",
+    "citation": "Jegadeesh and Titman (1993)",
+    "summary": "This paper documents intermediate-horizon momentum in US equities. It motivates ranking stocks by prior returns and holding recent winners while controlling implementation assumptions."
+  },
+  {
+    "strategy": "momentum",
+    "title": "Fact, Fiction, and Momentum Investing",
+    "citation": "Asness, Frazzini, Israel, and Moskowitz (2014)",
+    "summary": "The authors review common objections to momentum and argue that momentum is persistent across markets, but requires attention to crashes, turnover, and portfolio construction."
+  },
+  {
+    "strategy": "momentum",
+    "title": "Momentum Crashes",
+    "citation": "Daniel and Moskowitz (2016)",
+    "summary": "This work highlights that momentum can experience sharp reversals, especially after market stress. It is useful for the risk section of the research report."
+  },
+  {
+    "strategy": "mean_reversion",
+    "title": "Short-Term Reversals in Stock Returns",
+    "citation": "Jegadeesh (1990)",
+    "summary": "This research documents short-horizon reversal effects in stock returns, motivating strategies that buy recent losers and expect partial rebound."
+  },
+  {
+    "strategy": "mean_reversion",
+    "title": "The Overreaction Hypothesis and the UK Stock Market",
+    "citation": "Clare and Thomas (1995)",
+    "summary": "This paper studies overreaction and reversal behavior, useful for framing the economic intuition behind mean reversion strategies."
+  }
+]

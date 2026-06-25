@@ -25,8 +25,11 @@ The project demonstrates three required Evaluation concepts:
 - OpenAI API support through `OPENAI_API_KEY`
 - Deterministic fallback outputs when no API key is available
 - yfinance market data with sample-data fallback
+- Online arXiv paper search with local paper-library fallback
 - Monthly 12-month momentum backtest
 - Monthly 20-day mean reversion backtest
+- Config-driven defaults in `config/app_config.json`
+- Config-driven paper library in `config/papers.json`
 - Metrics: total return, annualized return, volatility, Sharpe ratio, max drawdown
 - Downloadable markdown research report
 

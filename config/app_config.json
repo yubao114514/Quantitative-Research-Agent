@@ -1,0 +1,21 @@
+{
+  "default_query": "Momentum strategy on S&P 500 stocks",
+  "default_universe": ["AAPL", "MSFT", "NVDA", "AMZN", "META", "GOOGL", "JPM", "XOM", "UNH", "SPY"],
+  "default_benchmark": "SPY",
+  "default_start": "2018-01-01",
+  "default_end": "2025-12-31",
+  "strategies": {
+    "momentum": {
+      "label": "Momentum",
+      "lookback_days": 252,
+      "rebalance": "ME",
+      "top_n": 3
+    },
+    "mean_reversion": {
+      "label": "Mean Reversion",
+      "lookback_days": 20,
+      "rebalance": "ME",
+      "top_n": 3
+    }
+  }
+}

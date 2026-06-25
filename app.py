@@ -5,9 +5,10 @@ import plotly.graph_objects as go
 import streamlit as st
 
 from agents.orchestrator import run_research_pipeline
+from quant.config import load_app_config
 
 
-DEFAULT_QUERY = "Momentum strategy on S&P 500 stocks"
+APP_CONFIG = load_app_config()
 
 
 st.set_page_config(
@@ -21,13 +22,15 @@ st.caption("From strategy idea to literature review, backtest, and research repo
 
 with st.sidebar:
     st.header("Demo Settings")
+    benchmark = st.text_input("Benchmark", value=APP_CONFIG["default_benchmark"]).strip().upper()
     tickers = st.text_area(
         "Universe",
-        "AAPL, MSFT, NVDA, AMZN, META, GOOGL, JPM, XOM, UNH, SPY",
+        ", ".join(APP_CONFIG["default_universe"]),
         height=92,
     )
-    start = st.date_input("Start date", value=date(2018, 1, 1))
-    end = st.date_input("End date", value=date(2025, 12, 31))
+    start = st.date_input("Start date", value=date.fromisoformat(APP_CONFIG["default_start"]))
+    end = st.date_input("End date", value=date.fromisoformat(APP_CONFIG["default_end"]))
+    use_online_papers = st.checkbox("Search papers online", value=True)
     st.divider()
     st.markdown("**Kaggle Evaluation Coverage**")
     st.checkbox("Agent / Multi-agent system", value=True, disabled=True)
@@ -40,11 +43,13 @@ if not has_llm_key:
         "No LLM API key found. Set GEMINI_API_KEY or OPENAI_API_KEY for live agent writing; otherwise the app uses deterministic fallback outputs."
     )
 
-query = st.text_input("Strategy idea", value=DEFAULT_QUERY)
+query = st.text_input("Strategy idea", value=APP_CONFIG["default_query"])
 run_button = st.button("Run research pipeline", type="primary")
 
 if run_button:
     ticker_list = [ticker.strip().upper() for ticker in tickers.split(",") if ticker.strip()]
+    if benchmark and benchmark not in ticker_list:
+        ticker_list.append(benchmark)
     with st.status("Running multi-agent research pipeline...", expanded=True) as status:
         st.write("Research Planner is creating the study plan.")
         result = run_research_pipeline(
@@ -52,10 +57,12 @@ if run_button:
             tickers=ticker_list,
             start=str(start),
             end=str(end),
+            benchmark=benchmark,
+            use_online_papers=use_online_papers,
         )
         st.write("Literature Agent summarized relevant papers.")
         st.write("Data Agent selected the market data source.")
-        st.write("Backtest Agent ran the momentum simulation.")
+        st.write(f"Backtest Agent ran the {result['strategy_label']} simulation.")
         st.write("Report Agent drafted the research report.")
         status.update(label="Research pipeline complete", state="complete")
 
@@ -77,10 +84,13 @@ if run_button:
 
     with tabs[1]:
         st.subheader("Literature Review")
+        st.caption(f"Paper source: {result['paper_source']}")
         for paper in result["papers"]:
             with st.expander(paper["title"], expanded=True):
                 st.markdown(f"**Citation:** {paper['citation']}")
                 st.markdown(paper["summary"])
+                if paper.get("url"):
+                    st.markdown(f"[Open paper]({paper['url']})")
 
     with tabs[2]:
         st.subheader("Data Source Notes")
@@ -104,7 +114,7 @@ if run_button:
                 x=curve.index,
                 y=curve["strategy"],
                 mode="lines",
-                name="Momentum strategy",
+                name=f"{result['strategy_label']} strategy",
             )
         )
         fig.add_trace(
@@ -112,7 +122,7 @@ if run_button:
                 x=curve.index,
                 y=curve["benchmark"],
                 mode="lines",
-                name="SPY benchmark",
+                name=f"{result['benchmark']} benchmark",
             )
         )
         fig.update_layout(
