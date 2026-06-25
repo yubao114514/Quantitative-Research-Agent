@@ -21,10 +21,12 @@ The project demonstrates three required Evaluation concepts:
 ## Features
 
 - Streamlit research workbench
+- Gemini API support through `GEMINI_API_KEY`
 - OpenAI API support through `OPENAI_API_KEY`
 - Deterministic fallback outputs when no API key is available
 - yfinance market data with sample-data fallback
 - Monthly 12-month momentum backtest
+- Monthly 20-day mean reversion backtest
 - Metrics: total return, annualized return, volatility, Sharpe ratio, max drawdown
 - Downloadable markdown research report
 
@@ -37,6 +39,7 @@ pip install -r requirements.txt
 Optional:
 
 ```bash
+set GEMINI_API_KEY=your_gemini_api_key_here
 set OPENAI_API_KEY=your_api_key_here
 ```
 
@@ -64,6 +67,7 @@ The agents call the local MCP-style tool layer:
 search_papers(query)
 get_market_data(tickers, start, end)
 run_momentum_backtest(config)
+run_mean_reversion_backtest(config)
 generate_research_report(payload)
 ```
 

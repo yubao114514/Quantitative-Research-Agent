@@ -34,10 +34,10 @@ with st.sidebar:
     st.checkbox("MCP Server", value=True, disabled=True)
     st.checkbox("Agent skills", value=True, disabled=True)
 
-api_key = os.getenv("OPENAI_API_KEY", "")
-if not api_key:
+has_llm_key = bool(os.getenv("GEMINI_API_KEY") or os.getenv("OPENAI_API_KEY"))
+if not has_llm_key:
     st.warning(
-        "OPENAI_API_KEY is not set. The app will run with deterministic fallback agent outputs."
+        "No LLM API key found. Set GEMINI_API_KEY or OPENAI_API_KEY for live agent writing; otherwise the app uses deterministic fallback outputs."
     )
 
 query = st.text_input("Strategy idea", value=DEFAULT_QUERY)
@@ -71,6 +71,7 @@ if run_button:
     )
 
     with tabs[0]:
+        st.caption(f"Detected strategy: {result['strategy_label']}")
         st.subheader("Research Plan")
         st.markdown(result["research_plan"])
 

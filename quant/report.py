@@ -1,6 +1,20 @@
 def build_research_report(payload: dict) -> str:
     metrics = payload["metrics"]
     papers = payload["papers"]
+    strategy_label = payload.get("strategy_label", "Momentum")
+    strategy_type = payload.get("strategy_type", "momentum")
+    if strategy_type == "mean_reversion":
+        thesis = "Mean reversion strategies test whether short-term losers rebound after temporary overreaction. This MVP evaluates a monthly rebalanced 20-day reversal implementation."
+        methodology = """- Rank non-benchmark stocks by 20-day trailing return.
+- Select the 3 stocks with the weakest short-term returns at each month-end rebalance.
+- Allocate equal weights to selected names.
+- Compare the resulting equity curve against SPY."""
+    else:
+        thesis = "Momentum strategies test whether assets with stronger trailing performance continue to outperform over the next holding period. This MVP evaluates a monthly rebalanced large-cap US equity implementation."
+        methodology = """- Rank non-benchmark stocks by 12-month trailing return.
+- Select the top 3 stocks at each month-end rebalance.
+- Allocate equal weights to selected names.
+- Compare the resulting equity curve against SPY."""
     paper_lines = "\n".join(
         f"- **{paper['citation']}**, _{paper['title']}_: {paper['summary']}"
         for paper in papers
@@ -12,7 +26,10 @@ def build_research_report(payload: dict) -> str:
 {payload["query"]}
 
 ## Research Thesis
-Momentum strategies test whether assets with stronger trailing performance continue to outperform over the next holding period. This MVP evaluates a monthly rebalanced large-cap US equity implementation.
+{thesis}
+
+## Strategy Type
+{strategy_label}
 
 ## Literature Review
 {paper_lines}
@@ -21,10 +38,7 @@ Momentum strategies test whether assets with stronger trailing performance conti
 {payload["data_notes"]}
 
 ## Methodology
-- Rank non-benchmark stocks by 12-month trailing return.
-- Select the top 3 stocks at each month-end rebalance.
-- Allocate equal weights to selected names.
-- Compare the resulting equity curve against SPY.
+{methodology}
 
 ## Results
 - Total return: **{metrics['total_return']:.1%}**

@@ -67,7 +67,7 @@
 
 ## Stretch Goals
 
-- [ ] Add support for mean reversion strategies.
+- [x] Add support for mean reversion strategies.
 - [ ] Add support for value or quality factor strategies.
 - [ ] Add citations in the final report.
 - [ ] Add code export as a notebook.
