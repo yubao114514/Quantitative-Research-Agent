@@ -30,6 +30,23 @@ if "benchmark" not in st.session_state:
 if "added_ticker" not in st.session_state:
     st.session_state.added_ticker = ""
 
+
+def add_ticker_to_universe() -> None:
+    added_ticker = st.session_state.added_ticker.strip().upper()
+    if not added_ticker:
+        return
+
+    current = [
+        ticker.strip().upper()
+        for ticker in st.session_state.universe_text.split(",")
+        if ticker.strip()
+    ]
+    if added_ticker not in current:
+        current.append(added_ticker)
+    st.session_state.universe_text = ", ".join(current)
+    st.session_state.added_ticker = ""
+
+
 query = st.text_input("Strategy idea", value=APP_CONFIG["default_query"])
 
 if st.button("Suggest research config"):
@@ -53,13 +70,7 @@ with st.sidebar:
         height=92,
     )
     added_ticker = st.text_input("Add ticker", key="added_ticker").strip().upper()
-    if st.button("Add ticker") and added_ticker:
-        current = [ticker.strip().upper() for ticker in st.session_state.universe_text.split(",") if ticker.strip()]
-        if added_ticker not in current:
-            current.append(added_ticker)
-        st.session_state.universe_text = ", ".join(current)
-        st.session_state.added_ticker = ""
-        st.rerun()
+    st.button("Add ticker", on_click=add_ticker_to_universe)
     if st.button("Reset to agent suggestion"):
         st.session_state.universe_text = ", ".join(config["universe"])
         st.session_state.benchmark = config["benchmark"]
