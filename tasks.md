@@ -62,8 +62,8 @@
 - [x] Improve the UI copy and layout.
 - [x] Add loading states for each agent step.
 - [x] Add one clear example run.
-- [ ] Prepare a short demo script.
-- [ ] Record or rehearse the final Kaggle walkthrough.
+- [x] Prepare a short demo script.
+- [x] Record or rehearse the final Kaggle walkthrough.
 
 ## Stretch Goals
 
