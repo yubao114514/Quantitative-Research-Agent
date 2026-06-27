@@ -7,3 +7,5 @@ python-*.exe
 Git-*.exe
 .streamlit/secrets.toml
 
+
+video/
